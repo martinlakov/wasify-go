@@ -24,7 +24,7 @@ func (hf *hostFunctions) newLog() *HostFunction {
 		moduleConfig: hf.config,
 
 		Name:    "log",
-		Params:  []ValueType{ValueTypeBytes, ValueTypeString},
+		Params:  []ValueType{ValueTypeString, ValueTypeBytes},
 		Results: nil,
 		Callback: func(ctx context.Context, m *ModuleProxy, params []PackedData) MultiPackedData {
 			severity := utils.Must(m.Memory.ReadBytePack(params[0]))
