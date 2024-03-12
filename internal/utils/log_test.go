@@ -8,8 +8,7 @@ import (
 )
 
 func TestGetLogLevel(t *testing.T) {
-
-	newLogger := NewLogger(LogDebug)
+	newLogger := NewSlogLogger(LogDebug)
 	assert.NotNil(t, newLogger)
 
 	tests := []struct {
