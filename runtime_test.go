@@ -12,6 +12,7 @@ func TestNewRuntime(t *testing.T) {
 
 	runtimeConfig := &RuntimeConfig{
 		Runtime: RuntimeWazero,
+		Logger:  NewSlogLogger(LogInfo),
 	}
 
 	runtime, err := NewRuntime(ctx, runtimeConfig)
@@ -24,6 +25,7 @@ func TestNewRuntimeUnsupported(t *testing.T) {
 
 	runtimeConfig := &RuntimeConfig{
 		Runtime: 255, // Assuming this is an unsupported value
+		Logger:  NewSlogLogger(LogInfo),
 	}
 
 	runtime, err := NewRuntime(ctx, runtimeConfig)

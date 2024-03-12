@@ -16,6 +16,7 @@ func TestHostFunctions(t *testing.T) {
 
 	testRuntimeConfig := wasify.RuntimeConfig{
 		Runtime: wasify.RuntimeWazero,
+		Logger:  wasify.NewSlogLogger(wasify.LogInfo),
 	}
 
 	testModuleConfig := wasify.ModuleConfig{
