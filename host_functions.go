@@ -2,59 +2,38 @@ package wasify
 
 import (
 	"context"
+
+	"github.com/wasify-io/wasify-go/internal/utils"
 )
 
 const WASIFY_NAMESPACE = "wasify"
 
 // hostFunctions is a list of pre-defined host functions
 type hostFunctions struct {
-	moduleConfig *ModuleConfig
+	config *ModuleConfig
 }
 
-func newHostFunctions(moduleConfig *ModuleConfig) *hostFunctions {
-	return &hostFunctions{moduleConfig}
+func newHostFunctions(config *ModuleConfig) *hostFunctions {
+	return &hostFunctions{config}
 }
 
 // newLog logs data from the guest module to the host machine,
 // to avoid stdin/stdout calls and ensure sandboxing.
 func (hf *hostFunctions) newLog() *HostFunction {
+	return &HostFunction{
+		moduleConfig: hf.config,
 
-	log := &HostFunction{
-		Name: "log",
+		Name:    "log",
+		Params:  []ValueType{ValueTypeBytes, ValueTypeString},
+		Results: nil,
 		Callback: func(ctx context.Context, m *ModuleProxy, params []PackedData) MultiPackedData {
+			severity := utils.Must(m.Memory.ReadBytePack(params[0]))
+			level := utils.GetlogLevel(utils.LogSeverity(severity))
+			message := utils.Must(m.Memory.ReadStringPack(params[1]))
 
-			msg, err := m.Memory.ReadStringPack(params[0])
-			if err != nil {
-				panic(err)
-			}
-
-			lvl, err := m.Memory.ReadBytePack(params[0])
-			if err != nil {
-				panic(err)
-			}
-
-			severity := LogSeverity(lvl)
-
-			switch severity {
-			case LogDebug:
-				hf.moduleConfig.log.Debug(msg)
-			case LogInfo:
-				hf.moduleConfig.log.Info(msg)
-			case LogWarning:
-				hf.moduleConfig.log.Warn(msg)
-			case LogError:
-				hf.moduleConfig.log.Error(msg)
-			}
+			hf.config.log.Log(ctx, level, message)
 
 			return 0
-
 		},
-		Params:  []ValueType{ValueTypeBytes, ValueTypeBytes},
-		Results: nil,
-
-		// required fields
-		moduleConfig: hf.moduleConfig,
 	}
-
-	return log
 }

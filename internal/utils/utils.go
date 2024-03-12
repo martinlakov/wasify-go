@@ -8,6 +8,14 @@ import (
 	"fmt"
 )
 
+func Must[T any](value T, err error) T {
+	if err != nil {
+		panic(err)
+	}
+
+	return value
+}
+
 // calculateHash computes the SHA-256 hash of the input byte slice.
 // It returns the hash as a hex-encoded string.
 func CalculateHash(data []byte) (hash string, err error) {
