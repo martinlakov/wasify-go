@@ -152,8 +152,8 @@ func (r *wazeroRuntime) instantiateHostFunctions(ctx context.Context, wazeroModu
 		// See host_function.go for more details.
 		hf.moduleConfig = moduleConfig
 
-		// If hsot function has any return values, we pack it as a single uint64
-		var resultValuesPackedData = []ValueType{}
+		// If host function has any return values, we pack it as a single uint64
+		var resultValuesPackedData = make([]ValueType, 0)
 		if len(hf.Results) > 0 {
 			resultValuesPackedData = []ValueType{ValueTypeI64}
 		}
@@ -208,13 +208,6 @@ func (r *wazeroRuntime) instantiateHostFunctions(ctx context.Context, wazeroModu
 // It compiles the module, creates a module configuration, and then instantiates the module.
 // Returns the instantiated module and any potential error.
 func (r *wazeroRuntime) instantiateModule(ctx context.Context, moduleConfig *ModuleConfig) (api.Module, error) {
-
-	// Compile the provided WebAssembly binary.
-	compiled, err := r.runtime.CompileModule(ctx, moduleConfig.Wasm.Binary)
-	if err != nil {
-		return nil, errors.Join(errors.New("can't compile module"), err)
-	}
-
 	// TODO: Add more configurations
 	cfg := wazero.NewModuleConfig()
 	cfg = cfg.WithStdin(os.Stdin)
@@ -229,7 +222,7 @@ func (r *wazeroRuntime) instantiateModule(ctx context.Context, moduleConfig *Mod
 	}
 
 	// Instantiate the compiled module with the provided module configuration.
-	mod, err := r.runtime.InstantiateModule(ctx, compiled, cfg)
+	mod, err := r.runtime.InstantiateWithConfig(ctx, moduleConfig.Wasm.Binary, cfg)
 	if err != nil {
 		return nil, errors.Join(errors.New("can't instantiate module"), err)
 	}

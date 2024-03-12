@@ -42,7 +42,7 @@ func readF32(offset64 uint64) float32 {
 }
 
 func readF64(offset64 uint64) float64 {
-	return *ptrToData[float64](uint64(offset64))
+	return *ptrToData[float64](offset64)
 }
 
 func readString(offset64 uint64, size int) string {

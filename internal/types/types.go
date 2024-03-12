@@ -42,7 +42,7 @@ func (v ValueType) String() string {
 		return "ValueTypeString"
 	}
 
-	return "udnefined"
+	return "undefined"
 }
 
 // GetOffsetSizeAndDataTypeByConversion determines the memory size (offsetSize) and ValueType

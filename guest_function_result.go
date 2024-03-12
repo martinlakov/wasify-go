@@ -100,22 +100,18 @@ func read(data uint64, memory Memory) ([]PackedData, error) {
 	}
 
 	t, offsetU32, size := utils.UnpackUI64(data)
-
 	if t != types.ValueTypePack {
-		err := fmt.Errorf("Can't unpack host data, the type is not a valueTypePack. expected %d, got %d", types.ValueTypePack, t)
-		return nil, err
+		return nil, fmt.Errorf("Can't unpack host data, the type is not a valueTypePack. expected %d, got %d", types.ValueTypePack, t)
 	}
 
 	bytes, err := memory.ReadBytes(offsetU32, size)
 	if err != nil {
-		err := errors.Join(errors.New("ReadPacks error, can't read bytes:"), err)
-		return nil, err
+		return nil, errors.Join(errors.New("ReadPacks error, can't read bytes:"), err)
 	}
 
 	err = memory.FreePack(PackedData(data))
 	if err != nil {
-		err := errors.Join(errors.New("ReadPacks error, can't free multiPackedData:"), err)
-		return nil, err
+		return nil, errors.Join(errors.New("ReadPacks error, can't free multiPackedData:"), err)
 	}
 
 	return utils.Map(

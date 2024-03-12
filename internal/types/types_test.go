@@ -21,7 +21,7 @@ func TestGetOffsetSizeAndDataTypeByConversion(t *testing.T) {
 		{"TestString", ValueTypeString, false, 10},
 		{struct{}{}, ValueType(0), true, 0},
 		{-1, ValueType(0), true, 0},
-		{int(1), ValueType(0), true, 0},
+		{1, ValueType(0), true, 0},
 	}
 
 	for _, tt := range tests {

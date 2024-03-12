@@ -36,7 +36,7 @@ func (rt RuntimeType) String() (runtimeName string) {
 type RuntimeConfig struct {
 	// Specifies the type of runtime being used.
 	Runtime RuntimeType
-	// Determines the severity level of logging.
+	// Logger to use for the runtime and module
 	Logger Logger
 }
 

@@ -13,16 +13,16 @@ type ValueType types.ValueType
 
 // supported value types in params and returns
 const (
-	ValueTypeBytes  ValueType = ValueType(types.ValueTypeBytes)
-	ValueTypeByte   ValueType = ValueType(types.ValueTypeByte)
-	ValueTypeI32    ValueType = ValueType(types.ValueTypeI32)
-	ValueTypeI64    ValueType = ValueType(types.ValueTypeI64)
-	ValueTypeF32    ValueType = ValueType(types.ValueTypeF32)
-	ValueTypeF64    ValueType = ValueType(types.ValueTypeF64)
-	ValueTypeString ValueType = ValueType(types.ValueTypeString)
+	ValueTypeBytes  = ValueType(types.ValueTypeBytes)
+	ValueTypeByte   = ValueType(types.ValueTypeByte)
+	ValueTypeI32    = ValueType(types.ValueTypeI32)
+	ValueTypeI64    = ValueType(types.ValueTypeI64)
+	ValueTypeF32    = ValueType(types.ValueTypeF32)
+	ValueTypeF64    = ValueType(types.ValueTypeF64)
+	ValueTypeString = ValueType(types.ValueTypeString)
 )
 
-// Param defines the attributes of a function parameter.
+// MultiPackedData - defines the attributes of a function parameter.
 type MultiPackedData uint64
 type PackedData uint64
 
