@@ -61,7 +61,7 @@ type HostFunctionCallback func(ctx context.Context, moduleProxy *ModuleProxy, mu
 // prepares parameters for the host function by converting
 // packed stack parameters into a slice of PackedData. It validates parameter counts
 // and leverages ModuleProxy for reading the data.
-func (hf *HostFunction) preHostFunctionCallback(ctx context.Context, m *ModuleProxy, stackParams []uint64) ([]PackedData, error) {
+func (hf *HostFunction) preHostFunctionCallback(stackParams []uint64) ([]PackedData, error) {
 
 	// If user did not define params, skip the whole process, we still might get stackParams[0] = 0
 	if len(hf.Params) == 0 {
@@ -84,7 +84,7 @@ func (hf *HostFunction) preHostFunctionCallback(ctx context.Context, m *ModulePr
 
 // postHostFunctionCallback
 // stores the resulting MultiPackedData into linear memory after the host function execution.
-func (hf *HostFunction) postHostFunctionCallback(ctx context.Context, m *ModuleProxy, mpd MultiPackedData, stackParams []uint64) {
+func (hf *HostFunction) postHostFunctionCallback(mpd MultiPackedData, stackParams []uint64) {
 	// Store final MultiPackedData into linear memory
 	stackParams[0] = uint64(mpd)
 }

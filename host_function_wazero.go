@@ -59,14 +59,14 @@ func wazeroHostFunctionCallback(wazeroModule *wazeroModule, moduleConfig *Module
 			Memory: wazeroModule.Memory(),
 		}
 
-		params, err := hf.preHostFunctionCallback(ctx, moduleProxy, stack)
+		params, err := hf.preHostFunctionCallback(stack)
 		if err != nil {
 			moduleConfig.log.Error(err.Error(), "namespace", wazeroModule.Namespace, "func", hf.Name)
 		}
 
 		results := hf.Callback(ctx, moduleProxy, params)
 
-		hf.postHostFunctionCallback(ctx, moduleProxy, results, stack)
+		hf.postHostFunctionCallback(results, stack)
 
 	}
 }

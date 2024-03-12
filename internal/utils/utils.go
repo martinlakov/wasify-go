@@ -16,6 +16,16 @@ func Must[T any](value T, err error) T {
 	return value
 }
 
+func Map[I any, O any](elements []I, transform func(I) O) []O {
+	result := make([]O, len(elements))
+
+	for index, element := range elements {
+		result[index] = transform(element)
+	}
+
+	return result
+}
+
 // calculateHash computes the SHA-256 hash of the input byte slice.
 // It returns the hash as a hex-encoded string.
 func CalculateHash(data []byte) (hash string, err error) {

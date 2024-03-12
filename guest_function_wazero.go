@@ -54,7 +54,7 @@ func (gf *wazeroGuestFunction) call(params ...uint64) (uint64, error) {
 //
 // Return value: The result of invoking the guest function in the form of a GuestFunctionResult pointer,
 // or an error if any step in the process fails.
-func (gf *wazeroGuestFunction) Invoke(params ...any) (*GuestFunctionResult, error) {
+func (gf *wazeroGuestFunction) Invoke(params ...any) (GuestFunctionResult, error) {
 
 	var err error
 
@@ -103,10 +103,5 @@ func (gf *wazeroGuestFunction) Invoke(params ...any) (*GuestFunctionResult, erro
 		return nil, err
 	}
 
-	res := &GuestFunctionResult{
-		multiPackedData: multiPackedData,
-		memory:          gf.memory,
-	}
-
-	return res, err
+	return NewGuestFunctionResult(multiPackedData, gf.memory), err
 }
