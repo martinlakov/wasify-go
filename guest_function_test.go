@@ -44,7 +44,7 @@ func TestGuestFunctions(t *testing.T) {
 			assert.NoError(t, err)
 		}()
 
-		res, err := module.GuestFunction(ctx, "guestTest").Invoke(
+		res := module.GuestFunction(ctx, "guestTest").Invoke(
 			[]byte("bytes!"),
 			byte(1),
 			uint32(32),
@@ -54,7 +54,7 @@ func TestGuestFunctions(t *testing.T) {
 			"Wasify",
 			"any type",
 		)
-		assert.NoError(t, err)
+		assert.NoError(t, res.Error())
 
 		t.Log("TestGuestFunctions RES:", res)
 	})

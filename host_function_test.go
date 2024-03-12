@@ -100,8 +100,8 @@ func TestHostFunctions(t *testing.T) {
 			assert.NoError(t, err)
 		}()
 
-		res, err := module.GuestFunction(ctx, "guestTest").Invoke()
-		assert.NoError(t, err)
+		res := module.GuestFunction(ctx, "guestTest").Invoke()
+		assert.NoError(t, res.Error())
 
 		t.Log("TestHostFunctions RES:", res)
 	})

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/wasify-io/wasify-go/internal/types"
+	"github.com/wasify-io/wasify-go/internal/utils"
 )
 
 // ValueType represents the type of value used in function parameters and returns.
@@ -62,7 +63,6 @@ type HostFunctionCallback func(ctx context.Context, moduleProxy *ModuleProxy, mu
 // packed stack parameters into a slice of PackedData. It validates parameter counts
 // and leverages ModuleProxy for reading the data.
 func (hf *HostFunction) preHostFunctionCallback(stackParams []uint64) ([]PackedData, error) {
-
 	// If user did not define params, skip the whole process, we still might get stackParams[0] = 0
 	if len(hf.Params) == 0 {
 		return nil, nil
@@ -72,14 +72,9 @@ func (hf *HostFunction) preHostFunctionCallback(stackParams []uint64) ([]PackedD
 		return nil, fmt.Errorf("%s: params mismatch expected: %d received: %d ", hf.Name, len(hf.Params), len(stackParams))
 	}
 
-	pds := make([]PackedData, len(hf.Params))
-
-	for i := range hf.Params {
-		pds[i] = PackedData(stackParams[i])
-	}
-
-	return pds, nil
-
+	return utils.Map(stackParams, func(param uint64) PackedData {
+		return PackedData(param)
+	}), nil
 }
 
 // postHostFunctionCallback

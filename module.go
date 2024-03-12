@@ -16,7 +16,7 @@ type ModuleProxy struct {
 }
 
 type GuestFunction interface {
-	Invoke(args ...any) (GuestFunctionResult, error)
+	Invoke(args ...any) GuestFunctionResult
 	call(args ...uint64) (uint64, error)
 }
 

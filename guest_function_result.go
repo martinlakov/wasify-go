@@ -11,17 +11,20 @@ import (
 
 type GuestFunctionResult interface {
 	io.Closer
+	Error() error
 	ReadPacks() ([]PackedData, error)
 }
 
-func NewGuestFunctionResult(data uint64, memory Memory) GuestFunctionResult {
+func NewGuestFunctionResult(err error, data uint64, memory Memory) GuestFunctionResult {
 	return &_GuestFunctionResult{
+		err:    err,
 		data:   data,
 		memory: memory,
 	}
 }
 
 type _GuestFunctionResult struct {
+	err    error
 	data   uint64
 	memory Memory
 	result []PackedData
@@ -29,6 +32,10 @@ type _GuestFunctionResult struct {
 
 func (self *_GuestFunctionResult) Close() error {
 	return self.memory.FreePack(self.result...)
+}
+
+func (self *_GuestFunctionResult) Error() error {
+	return self.err
 }
 
 // ReadPacks decodes the packedData from a GuestFunctionResult instance and retrieves a sequence of packed datas.

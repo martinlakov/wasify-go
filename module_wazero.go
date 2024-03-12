@@ -16,8 +16,8 @@ import (
 //
 // Example usage:
 //
-//	result, err = module.GuestFunction(ctx, "greet").Invoke("argument1", "argument2", 123)
-//	if err != nil {
+//	result = module.GuestFunction(ctx, "greet").Invoke("argument1", "argument2", 123)
+//	if err := result.Error(); err != nil {
 //	    slog.Error(err.Error())
 //	}
 func (m *wazeroModule) GuestFunction(ctx context.Context, name string) GuestFunction {

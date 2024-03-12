@@ -48,13 +48,13 @@ func (gf *wazeroGuestFunction) call(params ...uint64) (uint64, error) {
 //
 // Example:
 //
-// res, err := module.GuestFunction(ctx, "guestTest").Invoke([]byte("bytes!"), uint32(32), float32(32.0), "Wasify")
+// res := module.GuestFunction(ctx, "guestTest").Invoke([]byte("bytes!"), uint32(32), float32(32.0), "Wasify")
 //
 // params ...any: A variadic list of parameters of any type that the user wants to pass to the guest function.
 //
 // Return value: The result of invoking the guest function in the form of a GuestFunctionResult pointer,
 // or an error if any step in the process fails.
-func (gf *wazeroGuestFunction) Invoke(params ...any) (GuestFunctionResult, error) {
+func (gf *wazeroGuestFunction) Invoke(params ...any) GuestFunctionResult {
 
 	var err error
 
@@ -71,7 +71,7 @@ func (gf *wazeroGuestFunction) Invoke(params ...any) (GuestFunctionResult, error
 		valueType, offsetSize, err := types.GetOffsetSizeAndDataTypeByConversion(p)
 		if err != nil {
 			err = errors.Join(fmt.Errorf("Can't convert guest func param %s", gf.name), err)
-			return nil, err
+			return NewGuestFunctionResult(err, 0, gf.memory)
 		}
 
 		// allocate memory for each value
@@ -79,20 +79,20 @@ func (gf *wazeroGuestFunction) Invoke(params ...any) (GuestFunctionResult, error
 		if err != nil {
 			err = errors.Join(fmt.Errorf("An error occurred while attempting to alloc memory for guest func param in: %s", gf.name), err)
 			gf.moduleConfig.log.Error(err.Error())
-			return nil, err
+			return NewGuestFunctionResult(err, 0, gf.memory)
 		}
 
 		err = gf.memory.WriteAny(offsetI32, p)
 		if err != nil {
 			err = errors.Join(errors.New("Can't write arg to"), err)
-			return nil, err
+			return NewGuestFunctionResult(err, 0, gf.memory)
 		}
 
 		stack[i], err = utils.PackUI64(valueType, offsetI32, offsetSize)
 		if err != nil {
 			err = errors.Join(fmt.Errorf("An error occurred while attempting to pack data for guest func param in:  %s", gf.name), err)
 			gf.moduleConfig.log.Error(err.Error())
-			return nil, err
+			return NewGuestFunctionResult(err, 0, gf.memory)
 		}
 	}
 
@@ -100,8 +100,8 @@ func (gf *wazeroGuestFunction) Invoke(params ...any) (GuestFunctionResult, error
 	if err != nil {
 		err = errors.Join(fmt.Errorf("An error occurred while attempting to invoke the guest function: %s", gf.name), err)
 		gf.moduleConfig.log.Error(err.Error())
-		return nil, err
+		return NewGuestFunctionResult(err, 0, gf.memory)
 	}
 
-	return NewGuestFunctionResult(multiPackedData, gf.memory), err
+	return NewGuestFunctionResult(nil, multiPackedData, gf.memory)
 }
