@@ -27,11 +27,10 @@ func (hf *hostFunctions) newLog() *HostFunction {
 		Params:  []ValueType{ValueTypeString, ValueTypeBytes},
 		Results: nil,
 		Callback: func(ctx context.Context, m *ModuleProxy, params []PackedData) MultiPackedData {
-			severity := utils.Must(m.Memory.ReadBytePack(params[0]))
-			level := utils.GetlogLevel(utils.LogSeverity(severity))
-			message := utils.Must(m.Memory.ReadStringPack(params[1]))
-
-			hf.config.log.Log(ctx, level, message)
+			hf.config.log.Log(
+				utils.LogSeverity(utils.Must(m.Memory.ReadBytePack(params[1]))),
+				utils.Must(m.Memory.ReadStringPack(params[0])),
+			)
 
 			return 0
 		},

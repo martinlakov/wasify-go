@@ -3,7 +3,6 @@ package wasify
 import (
 	"context"
 	"errors"
-	"log/slog"
 
 	"github.com/wasify-io/wasify-go/internal/utils"
 )
@@ -56,14 +55,13 @@ type RuntimeConfig struct {
 	// Determines the severity level of logging.
 	LogSeverity LogSeverity
 	// Pointer to a logger for recording runtime information.
-	log *slog.Logger
+	log utils.Logger
 }
 
 // NewRuntime creates and initializes a new runtime based on the provided configuration.
 // It returns the initialized runtime and any error that might occur during the process.
 func NewRuntime(ctx context.Context, c *RuntimeConfig) (runtime Runtime, err error) {
-
-	c.log = utils.NewLogger(utils.LogSeverity(c.LogSeverity))
+	c.log = utils.NewSlogLogger(utils.LogSeverity(c.LogSeverity))
 
 	c.log.Info("runtime has been initialized successfully", "runtime", c.Runtime)
 

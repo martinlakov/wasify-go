@@ -59,7 +59,7 @@ func (r *wazeroRuntime) NewModule(ctx context.Context, moduleConfig *ModuleConfi
 	// you can set those modules to "Debug". This will replace the inherited log level,
 	// allowing the module to display debug information.
 	if moduleConfig.LogSeverity != 0 {
-		moduleConfig.log = utils.NewLogger(utils.LogSeverity(moduleConfig.LogSeverity))
+		moduleConfig.log = utils.NewSlogLogger(utils.LogSeverity(moduleConfig.LogSeverity))
 	}
 
 	// Check and compare hashes if provided in the moduleConfig.

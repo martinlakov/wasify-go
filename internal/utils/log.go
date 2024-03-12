@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"log/slog"
 	"os"
 )
@@ -21,14 +22,45 @@ var logMap = map[LogSeverity]slog.Level{
 	LogError:   slog.LevelError,
 }
 
-// NewLogger returns new slog ref
-func NewLogger(severity LogSeverity) *slog.Logger {
+type Logger interface {
+	Info(message string, arguments ...any)
+	Warn(message string, arguments ...any)
+	Error(message string, arguments ...any)
+	Debug(message string, arguments ...any)
+	Log(severity LogSeverity, message string, arguments ...any)
+}
 
-	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-		Level: GetlogLevel(severity),
-	}))
+// NewSlogLogger returns new slog ref
+func NewSlogLogger(severity LogSeverity) Logger {
+	return &_SlogLogger{
+		delegate: slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+			Level: GetlogLevel(severity),
+		})),
+	}
+}
 
-	return logger
+type _SlogLogger struct {
+	delegate *slog.Logger
+}
+
+func (self *_SlogLogger) Info(message string, arguments ...any) {
+	self.Log(LogInfo, message, arguments...)
+}
+
+func (self *_SlogLogger) Error(message string, arguments ...any) {
+	self.Log(LogError, message, arguments...)
+}
+
+func (self *_SlogLogger) Debug(message string, arguments ...any) {
+	self.Log(LogDebug, message, arguments...)
+}
+
+func (self *_SlogLogger) Warn(message string, arguments ...any) {
+	self.Log(LogWarning, message, arguments...)
+}
+
+func (self *_SlogLogger) Log(severity LogSeverity, message string, arguments ...any) {
+	self.delegate.Log(context.Background(), GetlogLevel(severity), message, arguments...)
 }
 
 // GetlogLevel gets 'slog' level based on severity specified by user
