@@ -1,4 +1,4 @@
-package utils
+package wasify
 
 import (
 	"log/slog"
@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetLogLevel(t *testing.T) {
+func TestAsSlogLogLevel(t *testing.T) {
 	newLogger := NewSlogLogger(LogDebug)
 	assert.NotNil(t, newLogger)
 
@@ -23,7 +23,7 @@ func TestGetLogLevel(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		got := GetlogLevel(test.severity)
+		got := asSlogLevel(test.severity)
 		if got != test.expected {
 			t.Errorf("for severity %d, expected %d but got %d", test.severity, test.expected, got)
 		}

@@ -25,7 +25,7 @@ func getWazeroRuntime(ctx context.Context, c *RuntimeConfig) *wazeroRuntime {
 		WithCustomSections(false).
 		WithCloseOnContextDone(false).
 		// Enable runtime debug if user sets LogSeverity to debug level in runtime configuration
-		WithDebugInfoEnabled(c.LogSeverity == LogDebug),
+		WithDebugInfoEnabled(c.Logger.Severity() == LogDebug),
 	)
 	// Instantiate the runtime with the WASI snapshot preview1.
 	wasi_snapshot_preview1.MustInstantiate(ctx, runtime)
@@ -45,7 +45,7 @@ func (r *wazeroRuntime) NewModule(ctx context.Context, moduleConfig *ModuleConfi
 
 	// Set the context, logger and any missing data for the moduleConfig.
 	moduleConfig.ctx = ctx
-	moduleConfig.log = r.log
+	moduleConfig.log = r.Logger
 
 	// Create a new wazeroModule instance and set its ModuleConfig.
 	// Read more about wazeroModule in module_wazero.go
@@ -59,7 +59,7 @@ func (r *wazeroRuntime) NewModule(ctx context.Context, moduleConfig *ModuleConfi
 	// you can set those modules to "Debug". This will replace the inherited log level,
 	// allowing the module to display debug information.
 	if moduleConfig.LogSeverity != 0 {
-		moduleConfig.log = utils.NewSlogLogger(utils.LogSeverity(moduleConfig.LogSeverity))
+		moduleConfig.log = moduleConfig.log.ForSeverity(moduleConfig.LogSeverity)
 	}
 
 	// Check and compare hashes if provided in the moduleConfig.
@@ -83,7 +83,7 @@ func (r *wazeroRuntime) NewModule(ctx context.Context, moduleConfig *ModuleConfi
 	err := r.instantiateHostFunctions(ctx, wazeroModule, moduleConfig)
 	if err != nil {
 		moduleConfig.log.Error(err.Error(), "namespace", moduleConfig.Namespace)
-		r.log.Error(err.Error(), "runtime", r.Runtime, "namespace", moduleConfig.Namespace)
+		r.Logger.Error(err.Error(), "runtime", r.Runtime, "namespace", moduleConfig.Namespace)
 		return nil, err
 	}
 
@@ -93,7 +93,7 @@ func (r *wazeroRuntime) NewModule(ctx context.Context, moduleConfig *ModuleConfi
 	mod, err := r.instantiateModule(ctx, moduleConfig)
 	if err != nil {
 		moduleConfig.log.Error(err.Error(), "namespace", moduleConfig.Namespace)
-		r.log.Error(err.Error(), "runtime", r.Runtime, "namespace", moduleConfig.Namespace)
+		r.Logger.Error(err.Error(), "runtime", r.Runtime, "namespace", moduleConfig.Namespace)
 		return nil, err
 	}
 
@@ -246,7 +246,7 @@ func (r *wazeroRuntime) Close(ctx context.Context) error {
 	err := r.runtime.Close(ctx)
 	if err != nil {
 		err = errors.Join(errors.New("can't close runtime"), err)
-		r.log.Error(err.Error(), "runtime", r.Runtime)
+		r.Logger.Error(err.Error(), "runtime", r.Runtime)
 		return err
 	}
 

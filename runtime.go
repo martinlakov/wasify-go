@@ -3,22 +3,6 @@ package wasify
 import (
 	"context"
 	"errors"
-
-	"github.com/wasify-io/wasify-go/internal/utils"
-)
-
-type LogSeverity utils.LogSeverity
-
-// The log level is initially set to "Info" for runtimes and "zero" (0) for modules.
-// However, modules will adopt the log level from their parent runtime.
-// If you want only "Error" level for a runtime but need to debug specific module(s),
-// you can set those modules to "Debug". This will replace the inherited log level,
-// allowing the module to display debug information.
-const (
-	LogDebug   LogSeverity = LogSeverity(utils.LogDebug)
-	LogInfo    LogSeverity = LogSeverity(utils.LogInfo)
-	LogWarning LogSeverity = LogSeverity(utils.LogWarning)
-	LogError   LogSeverity = LogSeverity(utils.LogError)
 )
 
 type Runtime interface {
@@ -53,23 +37,19 @@ type RuntimeConfig struct {
 	// Specifies the type of runtime being used.
 	Runtime RuntimeType
 	// Determines the severity level of logging.
-	LogSeverity LogSeverity
-	// Pointer to a logger for recording runtime information.
-	log utils.Logger
+	Logger Logger
 }
 
 // NewRuntime creates and initializes a new runtime based on the provided configuration.
 // It returns the initialized runtime and any error that might occur during the process.
 func NewRuntime(ctx context.Context, c *RuntimeConfig) (runtime Runtime, err error) {
-	c.log = utils.NewSlogLogger(utils.LogSeverity(c.LogSeverity))
-
-	c.log.Info("runtime has been initialized successfully", "runtime", c.Runtime)
+	c.Logger.Info("runtime has been initialized successfully", "runtime", c.Runtime)
 
 	// Retrieve the appropriate runtime implementation based on the configured type.
 	runtime = c.getRuntime(ctx)
 	if runtime == nil {
 		err = errors.New("unsupported runtime")
-		c.log.Error(err.Error(), "runtime", c.Runtime)
+		c.Logger.Error(err.Error(), "runtime", c.Runtime)
 		return
 	}
 

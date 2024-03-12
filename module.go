@@ -2,8 +2,6 @@ package wasify
 
 import (
 	"context"
-
-	"github.com/wasify-io/wasify-go/internal/utils"
 )
 
 type Module interface {
@@ -86,7 +84,7 @@ type ModuleConfig struct {
 
 	// Struct members for internal use.
 	ctx context.Context
-	log utils.Logger
+	log Logger
 }
 
 // Wasm configures a new wasm file.

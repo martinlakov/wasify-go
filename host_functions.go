@@ -28,7 +28,7 @@ func (hf *hostFunctions) newLog() *HostFunction {
 		Results: nil,
 		Callback: func(ctx context.Context, m *ModuleProxy, params []PackedData) MultiPackedData {
 			hf.config.log.Log(
-				utils.LogSeverity(utils.Must(m.Memory.ReadBytePack(params[1]))),
+				LogSeverity(utils.Must(m.Memory.ReadBytePack(params[1]))),
 				utils.Must(m.Memory.ReadStringPack(params[0])),
 			)
 

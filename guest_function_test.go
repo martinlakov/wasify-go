@@ -13,10 +13,9 @@ import (
 var wasm_guestAllAvailableTypes []byte
 
 func TestGuestFunctions(t *testing.T) {
-
 	testRuntimeConfig := wasify.RuntimeConfig{
-		Runtime:     wasify.RuntimeWazero,
-		LogSeverity: wasify.LogError,
+		Runtime: wasify.RuntimeWazero,
+		Logger:  wasify.NewSlogLogger(wasify.LogError),
 	}
 
 	testModuleConfig := wasify.ModuleConfig{
