@@ -1,0 +1,25 @@
+#!/bin/bash
+
+source "$(dirname "${0}")/commons.lib"
+
+readonly PROJECT_PATH="$(realpath "$(dirname "${0}")/../..")"
+readonly PROJECT_NAME="$(basename "${PROJECT_PATH}")"
+
+readonly GOLANGCI_LINT_VERSION="latest"
+readonly GOLANGCI_LINT_REPO="github.com/golangci/golangci-lint/cmd/golangci-lint"
+
+function main() {
+  local run_all="$(_read_cmd_flag "run-all" "true" "${@}")"
+  local lint_project="$(_read_cmd_flag "lint" "${run_all}" "${@}")"
+
+  if _is_truthy "${lint_project}"; then
+    _info "Running linter for project '${PROJECT_NAME}'..."
+
+    _assert_success "${PROJECT_PATH}" go install -mod=mod "${GOLANGCI_LINT_REPO}@${GOLANGCI_LINT_VERSION}"
+    _assert_success "${PROJECT_PATH}" go vet ./...
+    _assert_success "${PROJECT_PATH}" golangci-lint cache clean
+    _assert_success "${PROJECT_PATH}" golangci-lint run --modules-download-mode=readonly
+  fi
+}
+
+main "${@}"

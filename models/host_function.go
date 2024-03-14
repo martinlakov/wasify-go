@@ -1,30 +1,11 @@
-package wasify
+package models
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/wasify-io/wasify-go/internal/types"
 	"github.com/wasify-io/wasify-go/internal/utils"
 )
-
-// ValueType represents the type of value used in function parameters and returns.
-type ValueType types.ValueType
-
-// supported value types in params and returns
-const (
-	ValueTypeBytes  = ValueType(types.ValueTypeBytes)
-	ValueTypeByte   = ValueType(types.ValueTypeByte)
-	ValueTypeI32    = ValueType(types.ValueTypeI32)
-	ValueTypeI64    = ValueType(types.ValueTypeI64)
-	ValueTypeF32    = ValueType(types.ValueTypeF32)
-	ValueTypeF64    = ValueType(types.ValueTypeF64)
-	ValueTypeString = ValueType(types.ValueTypeString)
-)
-
-// MultiPackedData - defines the attributes of a function parameter.
-type MultiPackedData uint64
-type PackedData uint64
 
 // HostFunction defines a host function that can be invoked from a guest module.
 type HostFunction struct {
@@ -49,20 +30,20 @@ type HostFunction struct {
 	// Allocation map to track parameter and return value allocations for host func.
 
 	// Configuration of the associated module.
-	moduleConfig *ModuleConfig
+	Config *ModuleConfig
 }
 
 // HostFunctionCallback is the function signature for the callback executed by a host function.
 //
 // HostFunctionCallback encapsulates the runtime's internal implementation details.
 // It serves as an intermediary invoked between the processing of function parameters and the final return of the function.
-type HostFunctionCallback func(ctx context.Context, moduleProxy *ModuleProxy, multiPackedData []PackedData) MultiPackedData
+type HostFunctionCallback func(ctx context.Context, module Module, datas []PackedData) MultiPackedData
 
-// preHostFunctionCallback
+// PreHostFunctionCallback
 // prepares parameters for the host function by converting
 // packed stack parameters into a slice of PackedData. It validates parameter counts
 // and leverages ModuleProxy for reading the data.
-func (hf *HostFunction) preHostFunctionCallback(stackParams []uint64) ([]PackedData, error) {
+func (hf *HostFunction) PreHostFunctionCallback(stackParams []uint64) ([]PackedData, error) {
 	// If user did not define params, skip the whole process, we still might get stackParams[0] = 0
 	if len(hf.Params) == 0 {
 		return nil, nil
@@ -77,9 +58,9 @@ func (hf *HostFunction) preHostFunctionCallback(stackParams []uint64) ([]PackedD
 	}), nil
 }
 
-// postHostFunctionCallback
+// PostHostFunctionCallback
 // stores the resulting MultiPackedData into linear memory after the host function execution.
-func (hf *HostFunction) postHostFunctionCallback(mpd MultiPackedData, stackParams []uint64) {
+func (hf *HostFunction) PostHostFunctionCallback(mpd MultiPackedData, stackParams []uint64) {
 	// Store final MultiPackedData into linear memory
 	stackParams[0] = uint64(mpd)
 }

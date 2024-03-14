@@ -1,4 +1,4 @@
-package wasify
+package wazero_test
 
 // import (
 // 	"context"
@@ -57,11 +57,11 @@ package wasify
 // 			assert.NoError(t, err, "Expected no error while closing runtime")
 // 		}()
 
-// 		module, err := runtime.NewModule(ctx, &testModuleConfig)
-// 		assert.NoError(t, err, "Expected no error while creating module")
-// 		assert.NotNil(t, module, "Expected a non-nil module")
-// 		err = module.Close(ctx)
-// 		assert.Nil(t, err, "Expected no error while closing module")
+// 		guest, err := runtime.NewModule(ctx, &testModuleConfig)
+// 		assert.NoError(t, err, "Expected no error while creating guest")
+// 		assert.NotNil(t, guest, "Expected a non-nil guest")
+// 		err = guest.Close(ctx)
+// 		assert.Nil(t, err, "Expected no error while closing guest")
 // 	})
 
 // 	t.Run("failure due to invalid runtime", func(t *testing.T) {
@@ -85,9 +85,9 @@ package wasify
 // 		invalidtestModuleConfig := testModuleConfig
 // 		invalidtestModuleConfig.Namespace = "_invalid_namespace_"
 
-// 		module, err := runtime.NewModule(ctx, &invalidtestModuleConfig)
+// 		guest, err := runtime.NewModule(ctx, &invalidtestModuleConfig)
 // 		assert.Error(t, err)
-// 		assert.Nil(t, module)
+// 		assert.Nil(t, guest)
 
 // 	})
 
@@ -103,9 +103,9 @@ package wasify
 // 		invalidtestModuleConfig := testModuleConfig
 // 		invalidtestModuleConfig.Wasm.Hash = "invalid_hash"
 
-// 		module, err := runtime.NewModule(ctx, &invalidtestModuleConfig)
+// 		guest, err := runtime.NewModule(ctx, &invalidtestModuleConfig)
 // 		assert.Error(t, err)
-// 		assert.Nil(t, module)
+// 		assert.Nil(t, guest)
 // 	})
 
 // 	t.Run("failure due to invalid wasm", func(t *testing.T) {
@@ -121,9 +121,9 @@ package wasify
 // 		invalidtestModuleConfig.Wasm.Binary = []byte("invalid wasm data")
 // 		invalidtestModuleConfig.Wasm.Hash = ""
 
-// 		module, err := runtime.NewModule(ctx, &invalidtestModuleConfig)
+// 		guest, err := runtime.NewModule(ctx, &invalidtestModuleConfig)
 // 		assert.Error(t, err)
-// 		assert.Nil(t, module)
+// 		assert.Nil(t, guest)
 // 	})
 
 // 	t.Run("test convertToAPIValueTypes", func(t *testing.T) {

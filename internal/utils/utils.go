@@ -6,7 +6,24 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	"slices"
 )
+
+func OneOf[T comparable](value T, values ...T) bool {
+	return slices.Index(values, value) > -1
+}
+
+func Ternary[T any](condition bool, first T, second T) T {
+	if condition {
+		return first
+	}
+
+	return second
+}
+
+func Second[T any](_ any, second T, _ ...any) T {
+	return second
+}
 
 func Must[T any](value T, err error) T {
 	if err != nil {
@@ -30,8 +47,8 @@ func Map[I any, O any](elements []I, transform func(I) O) []O {
 // It returns the hash as a hex-encoded string.
 func CalculateHash(data []byte) (hash string, err error) {
 	hasher := sha256.New()
-	_, err = hasher.Write(data)
-	if err != nil {
+
+	if err = Second(hasher.Write(data)); err != nil {
 		return "", err
 	}
 

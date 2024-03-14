@@ -5,14 +5,16 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/wasify-io/wasify-go/logging"
+	"github.com/wasify-io/wasify-go/models"
 )
 
 func TestNewRuntime(t *testing.T) {
 	ctx := context.Background()
 
-	runtimeConfig := &RuntimeConfig{
-		Runtime: RuntimeWazero,
-		Logger:  NewSlogLogger(LogInfo),
+	runtimeConfig := &models.RuntimeConfig{
+		Runtime: models.RuntimeWazero,
+		Logger:  logging.NewSlogLogger(logging.LogInfo),
 	}
 
 	runtime, err := NewRuntime(ctx, runtimeConfig)
@@ -23,9 +25,9 @@ func TestNewRuntime(t *testing.T) {
 func TestNewRuntimeUnsupported(t *testing.T) {
 	ctx := context.Background()
 
-	runtimeConfig := &RuntimeConfig{
+	runtimeConfig := &models.RuntimeConfig{
 		Runtime: 255, // Assuming this is an unsupported value
-		Logger:  NewSlogLogger(LogInfo),
+		Logger:  logging.NewSlogLogger(logging.LogInfo),
 	}
 
 	runtime, err := NewRuntime(ctx, runtimeConfig)
@@ -34,5 +36,5 @@ func TestNewRuntimeUnsupported(t *testing.T) {
 }
 
 func TestRuntimeTypeString(t *testing.T) {
-	assert.Equal(t, "Wazero", RuntimeWazero.String(), "Expected Wazero string representation")
+	assert.Equal(t, "Wazero", models.RuntimeWazero.String(), "Expected Wazero string representation")
 }

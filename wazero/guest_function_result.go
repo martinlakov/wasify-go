@@ -1,30 +1,15 @@
-package wasify
+package wazero
 
 import (
 	"errors"
 	"fmt"
-	"io"
 
 	"github.com/wasify-io/wasify-go/internal/types"
-	"github.com/wasify-io/wasify-go/internal/utils"
+	. "github.com/wasify-io/wasify-go/internal/utils"
+	. "github.com/wasify-io/wasify-go/models"
 )
 
-type GuestFunctionResult interface {
-	io.Closer
-	Error() error
-	Values() []PackedData
-
-	ReadAnyPack(index int) (any, uint32, uint32, error)
-	ReadBytesPack(index int) ([]byte, error)
-	ReadBytePack(index int) (byte, error)
-	ReadUint32Pack(index int) (uint32, error)
-	ReadUint64Pack(index int) (uint64, error)
-	ReadFloat32Pack(index int) (float32, error)
-	ReadFloat64Pack(index int) (float64, error)
-	ReadStringPack(index int) (string, error)
-}
-
-func NewGuestFunctionResult(err error, data uint64, memory Memory) GuestFunctionResult {
+func _NewGuestFunctionResult(err error, data MultiPackedData, memory RMemory) GuestFunctionResult {
 	if err != nil {
 		return &_GuestFunctionResult{err: err}
 	}
@@ -46,7 +31,7 @@ func NewGuestFunctionResult(err error, data uint64, memory Memory) GuestFunction
 
 type _GuestFunctionResult struct {
 	err    error
-	memory Memory
+	memory RMemory
 	values []PackedData
 }
 
@@ -94,28 +79,28 @@ func (self *_GuestFunctionResult) ReadStringPack(index int) (string, error) {
 	return self.memory.ReadStringPack(self.values[index])
 }
 
-func read(data uint64, memory Memory) ([]PackedData, error) {
+func read(data MultiPackedData, memory RMemory) ([]PackedData, error) {
 	if data == 0 {
 		return nil, errors.New("packedData is empty")
 	}
 
-	t, offsetU32, size := utils.UnpackUI64(data)
-	if t != types.ValueTypePack {
-		return nil, fmt.Errorf("Can't unpack host data, the type is not a valueTypePack. expected %d, got %d", types.ValueTypePack, t)
+	t, offsetU32, size := UnpackUI64[ValueType](uint64(data))
+	if t != ValueType(255) {
+		return nil, fmt.Errorf("invalid data type found, expected %d, got %d", types.ValueTypePack, t)
 	}
 
 	bytes, err := memory.ReadBytes(offsetU32, size)
 	if err != nil {
-		return nil, errors.Join(errors.New("ReadPacks error, can't read bytes:"), err)
+		return nil, errors.Join(errors.New("failed to read data"), err)
 	}
 
 	err = memory.FreePack(PackedData(data))
 	if err != nil {
-		return nil, errors.Join(errors.New("ReadPacks error, can't free multiPackedData:"), err)
+		return nil, errors.Join(errors.New("failed to free up pack data"), err)
 	}
 
-	return utils.Map(
-		utils.BytesToUint64Array(bytes),
+	return Map(
+		BytesToUint64Array(bytes),
 		func(data uint64) PackedData {
 			return PackedData(data)
 		},

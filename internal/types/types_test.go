@@ -1,8 +1,10 @@
-package types
+package types_test
 
 import (
 	"reflect"
 	"testing"
+
+	. "github.com/wasify-io/wasify-go/internal/types"
 )
 
 func TestGetOffsetSizeAndDataTypeByConversion(t *testing.T) {

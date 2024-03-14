@@ -1,10 +1,11 @@
 module github.com/wasify-io/wasify-go
 
-go 1.21
+go 1.22
 
 require (
-	github.com/stretchr/testify v1.8.4
-	github.com/tetratelabs/wazero v1.5.0
+	github.com/pkg/errors v0.9.1
+	github.com/stretchr/testify v1.9.0
+	github.com/tetratelabs/wazero v1.6.0
 )
 
 require (

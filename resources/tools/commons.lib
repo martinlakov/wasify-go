@@ -1,0 +1,141 @@
+#!/bin/bash
+
+function _info() {
+  echo "[INF][$(date '+%F|%T')] ${1}"
+}
+
+function _error() {
+  local message="[ERR][$(date '+%F|%T')] ${1}"
+
+  echo -e "\033[31m${message}\033[0m"
+}
+
+function _load_environment() {
+  local file_path="${1}"; shift
+
+  while IFS='=' read -r key value; do
+    if [[ ! -z "${key}" ]] && [[ -z "$(printenv "${key}")" ]]; then
+      export "${key}"="${value}"
+    fi
+  done < "${file_path}"
+}
+
+function _assert_success() {
+  local work_dir="${1}"; shift
+  local command="${1}"; shift
+  local exit_code
+
+  pushd "${work_dir}" > /dev/null 2>&1
+
+  "${command}" "${@}"; exit_code="${?}"
+
+  popd > /dev/null 2>&1
+
+  if [[ "${exit_code}" -ne "0" ]]; then
+    _error "Execution of command ${command} failed with code ${exit_code}"
+    _error "Execution callstack (subshell: ${BASH_SUBSHELL}):"
+    for ((index = 0; index < "${#FUNCNAME[@]}" - 1; index++)); do
+      _error "    ${FUNCNAME[${index}]} (invoked at line: ${BASH_LINENO[${index}]})"
+    done
+
+    exit "${exit_code}"
+  fi
+}
+
+function _read_cmd_arg() {
+    local option="${1}"; shift
+    local default="${1}"; shift
+    local previous current
+
+    for current in "${@}"; do
+        if [[ "${previous}" == "${option}" ]]; then
+            echo "${current}"
+            return 0
+        fi
+
+        previous="${current}"
+    done
+
+    echo "${default}"
+}
+
+function _read_cmd_flag() {
+  local flag="${1}"; shift
+  local value="${1}"; shift # default
+  local yes_arg_value="$(_read_cmd_arg "--${flag}" "" "${@}")"
+  local no_arg_value="$(_read_cmd_arg "--no-${flag}" "" "${@}")"
+
+  if _is_truthy "${no_arg_value}" || _is_falsy "${yes_arg_value}" || _is_raised "--no-${flag}" "${@}"; then
+    value="false"
+  elif _is_truthy "${yes_arg_value}" || _is_falsy "${no_arg_value}" || _is_raised "--${flag}" "${@}"; then
+    value="true"
+  fi
+
+  echo "${value}"
+}
+
+function _is_truthy() {
+    local value="${1}"; shift
+
+    [[ "${value}" == "y" ]] \
+    || [[ "${value}" == "t" ]] \
+    || [[ "${value}" == "on" ]] \
+    || [[ "${value}" == "yes" ]] \
+    || [[ "${value}" == "true" ]]
+}
+
+function _is_falsy() {
+    local value="${1}"; shift
+
+    [[ "${value}" == "n" ]] \
+    || [[ "${value}" == "f" ]] \
+    || [[ "${value}" == "no" ]] \
+    || [[ "${value}" == "off" ]] \
+    || [[ "${value}" == "false" ]]
+}
+
+function _download_file() {
+  local download_url="${1}"; shift
+  local download_path="${1}"; shift
+
+  test -e "${download_path}" || wget -O "${download_path}" "${download_url}"
+}
+
+function _ensure_installed() {
+  local executable="${1}"; shift
+  local package_name="$([[ "$(uname)" == "Darwin" ]] && echo "${1}" || echo "${2:-${1}}")"
+  local installer="$([[ "$(uname)" == "Darwin" ]] && echo brew || echo apt-get)"
+
+  if [[ -z "$(which "${executable}")" ]]; then
+    sudo "${installer}" install "${package_name}"
+  fi
+}
+
+function _negate() {
+  local value="${1}"; shift
+
+  if _is_falsy "${value}"; then
+    echo "true"
+  else
+    echo "false"
+  fi
+}
+
+function _is_raised() {
+  local flag="${1}"; shift
+  local value="$(_read_cmd_arg "${flag}" "" "${@}")"
+
+  ! _is_truthy "${value}" && ! _is_falsy "${value}" && _contains "${flag}" "${@}"
+}
+
+function _contains() {
+  local target="${1}"; shift
+
+  for value in "${@}"; do
+    if [[ "${value}" == "${target}" ]]; then
+      return 0
+    fi
+  done
+
+  return 1
+}

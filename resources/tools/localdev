@@ -1,0 +1,12 @@
+#!/bin/bash
+
+source "$(dirname "${0}")/commons.lib"
+
+readonly PROJECT_PATH="$(realpath "$(dirname "${0}")/../..")"
+
+function main() {
+  _load_environment "${PROJECT_PATH}/resources/environments/localdev.env"
+  _assert_success "${PROJECT_PATH}" go run main.go
+}
+
+main "${@}"

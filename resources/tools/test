@@ -1,0 +1,20 @@
+#!/bin/bash
+
+source "$(dirname "${0}")/commons.lib"
+
+readonly PROJECT_PATH="$(realpath "$(dirname "${0}")/../..")"
+readonly PROJECT_NAME="$(basename "${PROJECT_PATH}")"
+
+function main() {
+  local run_all="$(_read_cmd_flag "run-all" "true" "${@}")"
+  local run_tests="$(_read_cmd_flag "test" "${run_all}" "${@}")"
+
+  if _is_truthy "${run_tests}"; then
+    _info "Running tests for project '${PROJECT_NAME}'..."
+
+    _assert_success "${path}" go clean -testcache
+    _assert_success "${path}" go test -mod=readonly -coverprofile cover.out -timeout=20s ./...
+  fi
+}
+
+main "${@}"

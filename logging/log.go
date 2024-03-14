@@ -1,4 +1,4 @@
-package wasify
+package logging
 
 import (
 	"context"

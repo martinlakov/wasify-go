@@ -48,33 +48,22 @@ func (v ValueType) String() string {
 // GetOffsetSizeAndDataTypeByConversion determines the memory size (offsetSize) and ValueType
 // of a given data. The function supports several data
 func GetOffsetSizeAndDataTypeByConversion(data any) (dataType ValueType, offsetSize uint32, err error) {
-
 	switch vTyped := data.(type) {
 	case []byte:
-		offsetSize = uint32(len(vTyped))
-		dataType = ValueTypeBytes
+		return ValueTypeBytes, uint32(len(vTyped)), nil
 	case byte:
-		offsetSize = 1
-		dataType = ValueTypeByte
+		return ValueTypeByte, 1, nil
 	case uint32:
-		offsetSize = 4
-		dataType = ValueTypeI32
+		return ValueTypeI32, 4, nil
 	case uint64:
-		offsetSize = 8
-		dataType = ValueTypeI64
+		return ValueTypeI64, 8, nil
 	case float32:
-		offsetSize = 4
-		dataType = ValueTypeF32
+		return ValueTypeF32, 4, nil
 	case float64:
-		offsetSize = 8
-		dataType = ValueTypeF64
+		return ValueTypeF64, 8, nil
 	case string:
-		offsetSize = uint32(len(vTyped))
-		dataType = ValueTypeString
+		return ValueTypeString, uint32(len(vTyped)), nil
 	default:
-		err = fmt.Errorf("unsupported conversion data type %s", reflect.TypeOf(vTyped))
-		return
+		return 0, 0, fmt.Errorf("unsupported conversion data type %s", reflect.TypeOf(vTyped))
 	}
-
-	return dataType, offsetSize, err
 }

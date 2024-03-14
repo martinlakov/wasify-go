@@ -1,9 +1,10 @@
-package utils
+package utils_test
 
 import (
 	"testing"
 
 	"github.com/wasify-io/wasify-go/internal/types"
+	. "github.com/wasify-io/wasify-go/internal/utils"
 )
 
 func TestPackUnpackUI64(t *testing.T) {
@@ -16,7 +17,7 @@ func TestPackUnpackUI64(t *testing.T) {
 		t.Fatalf("Failed to pack data: %v", err)
 	}
 
-	unpackedDataType, unpackedPtr, unpackedSize := UnpackUI64(packedData)
+	unpackedDataType, unpackedPtr, unpackedSize := UnpackUI64[types.ValueType](packedData)
 
 	if unpackedDataType != dataType || unpackedPtr != ptr || unpackedSize != size {
 		t.Errorf("Unpack did not match original data. Expected: %v, %v, %v. Got: %v, %v, %v",

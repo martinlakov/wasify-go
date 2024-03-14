@@ -1,9 +1,11 @@
-package wasify
+package wazero
 
 import (
 	"context"
 
 	"github.com/tetratelabs/wazero/api"
+	"github.com/wasify-io/wasify-go/logging"
+	. "github.com/wasify-io/wasify-go/models"
 )
 
 // wazeroHostFunctionCallback returns a callback function that acts as a bridge between
@@ -50,23 +52,15 @@ import (
 //
 // Return value: A callback function that takes a context, api.Module, and a stack of parameters,
 // and handles the integration of the host function within the wazero runtime.
-func wazeroHostFunctionCallback(wazeroModule *wazeroModule, moduleConfig *ModuleConfig, hf *HostFunction) func(context.Context, api.Module, []uint64) {
-
+func wazeroHostFunctionCallback(logger logging.Logger, module *_Module, function *HostFunction) func(context.Context, api.Module, []uint64) {
 	return func(ctx context.Context, mod api.Module, stack []uint64) {
-
-		wazeroModule.mod = mod
-		moduleProxy := &ModuleProxy{
-			Memory: wazeroModule.Memory(),
-		}
-
-		params, err := hf.preHostFunctionCallback(stack)
+		params, err := function.PreHostFunctionCallback(stack)
 		if err != nil {
-			moduleConfig.log.Error(err.Error(), "namespace", wazeroModule.Namespace, "func", hf.Name)
+			logger.Error(err.Error(), "namespace", module.config.Namespace, "func", function.Name)
 		}
 
-		results := hf.Callback(ctx, moduleProxy, params)
+		results := function.Callback(ctx, module, params)
 
-		hf.postHostFunctionCallback(results, stack)
-
+		function.PostHostFunctionCallback(results, stack)
 	}
 }

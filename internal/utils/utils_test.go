@@ -1,7 +1,9 @@
-package utils
+package utils_test
 
 import (
 	"testing"
+
+	. "github.com/wasify-io/wasify-go/internal/utils"
 )
 
 func TestCalculateHash(t *testing.T) {

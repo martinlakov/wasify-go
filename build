@@ -1,0 +1,79 @@
+#!/bin/bash
+
+source "$(dirname "${0}")/resources/tools/commons.lib"
+
+readonly PROJECT_PATH="$(realpath "$(dirname "${0}")")"
+readonly PROJECT_NAME="$(basename "${PROJECT_PATH}")"
+
+function help() {
+  cat <<END
+Buildery for ${PROJECT_NAME} v1.0
+
+Syntax: build [--help|run-all|test|lint|build|update|generate|integration-test]
+
+Supported Flags:
+
+  ◦ [no-]help              Print help and exit                         (default: off)
+  ◦ [no-]run-all           Run all stages at once                      (default: on)
+  ◦ [no-]update            Enable/disable the 'update' stage           (default: off)
+  ◦ [no-]generate          Enable/disable the 'generate' stage         (default: off)
+  ◦ [no-]build             Enable/disable the 'build' stage            (default: off)
+  ◦ [no-]lint              Enable/disable the 'lint' stage             (default: off)
+  ◦ [no-]test              Enable/disable the 'test' stage             (default: off)
+  ◦ [no-]integration-test  Enable/disable the 'integration-test' stage (default: off)
+
+In addition flags can be given values:
+
+  ◦ for raising a flag - [y|yes|t|true|on]
+  ◦ for lowering a flag - [n|no|f|false|off]
+
+Example:
+
+  ◦ generate code - build --no-run-all --generate
+  ◦ run all integration & unit tests - build --no-run-all --test --integration-test
+
+END
+}
+
+function run_buildery() {
+  local help="$(_read_cmd_flag "help" "false" "${@}")"
+  local run_all="$(_read_cmd_flag "run-all" "true" "${@}")"
+  local run_tests="$(_read_cmd_flag "test" "${run_all}" "${@}")"
+  local lint_project="$(_read_cmd_flag "lint" "${run_all}" "${@}")"
+  local build_project="$(_read_cmd_flag "build" "${run_all}" "${@}")"
+  local update_dependencies="$(_read_cmd_flag "update" "${run_all}" "${@}")"
+  local generate_resources="$(_read_cmd_flag "generate" "${run_all}" "${@}")"
+  local run_integration_tests="$(_read_cmd_flag "integration-test" "${run_all}" "${@}")"
+
+  if _is_truthy "${help}"; then
+    help "${@}"
+    exit 0
+  fi
+
+  _info "-------------------------------------------------------------------------------"
+  _info "Welcome to ${PROJECT_NAME} Buildery v1.0"
+  _info "-------------------------------------------------------------------------------"
+  _info "Using the following settings:"
+  _info "  --run-all ${run_all}"
+  _info "  --test ${run_tests}"
+  _info "  --lint ${lint_project}"
+  _info "  --build ${build_project}"
+  _info "  --update ${update_dependencies}"
+  _info "-------------------------------------------------------------------------------"
+
+  _assert_success "${PROJECT_PATH}" ./resources/tools/updeps "${@}"
+  _assert_success "${PROJECT_PATH}" ./resources/tools/build "${@}"
+  _assert_success "${PROJECT_PATH}" ./resources/tools/lint "${@}"
+  _assert_success "${PROJECT_PATH}" ./resources/tools/test "${@}"
+}
+
+function main() {
+  if _is_truthy "$(_read_cmd_flag "help" "false" "${@}")"; then
+    help "${@}"
+    exit 0
+  fi
+
+  run_buildery "${@}"
+}
+
+main "${@}"
